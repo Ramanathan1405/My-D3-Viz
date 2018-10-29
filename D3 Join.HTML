@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<head>
+	<title>D3 Data</title>
+	<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+	
+<!--script type="text/javascript">
+	var dataset=[4,	11,	22,	17,	2,	25,	16]	;
+		<svg width="2000" height="100" style="background: aliceblue"></svg>
+svg = d3.select("svg").selectAll("rect");
+		svg.data(dataset).enter().append("rect")
+		.attr("x", function(d, i){return (i*30)+30})
+		.attr("y", 10)	
+		.style("fill", "green")
+		.attr("width", function(d){return +d})
+		.attr("height", function(d){return +d})
+		.style("opacity", 0.8);
+	
+</script>
+
+<script type="text/javascript">
+	var dataset=[4,	11,	22,	17,	2,	25,	16]	;
+		<svg width="2000" height="100" style="background: aliceblue">
+svg = d3.select("svg").selectAll("rect");
+		svg.data(dataset).enter().append("rect")
+		.attr("x", function(d, i){return (i*30)+30})
+		.attr("y", 10)	
+		.style("fill", "black")
+		.attr("width", function(d){return +Math.sqrt(d)})
+		.attr("height", function(d){return +Math.sqrt(d)})
+		.style("opacity", 0.8)
+		.attr("transform", "scale(4)")
+</script>
+
+<script type="text/javascript">
+	var dataset=[4,	11,	22,	17,	2,	25,	16]	;
+		<svg width="2000" height="100" style="background: aliceblue">
+
+svg = d3.select("svg").selectAll("rect");
+		svg.data(dataset).enter().append("rect")
+		.attr("x", function(d, i){return (i*30)+30})
+		.attr("y", 10)	
+		.style("fill", function(d){if(d>15){return "green"}else{return "red"}})
+		.attr("width", function(d){return +Math.sqrt(d)})
+		.attr("height", function(d){return +Math.sqrt(d)})
+		.style("opacity", 0.8)
+		.attr("transform", "scale(4)")
+</script-->
+	<svg width="2000" height="100" style="background: aliceblue"></svg>
+	<script type="text/javascript">
+			dataset = Array(10);
+			for(i=0;i<9;i++){
+			dataset = dataset.fill(Math.floor((Math.random()*100+1)), i);	
+			}
+		
+		svg = d3.select("svg").selectAll("rect");
+		svg.data(dataset).enter().append("rect")
+		.attr("x", function(d, i){return (i*30)+30})
+		.attr("y", 10)	
+		.style("fill", function(d){if(d>50){return "green"}else{return "red"}})
+		.attr("width", function(d){return +Math.sqrt(d)})
+		.attr("height", function(d){return +Math.sqrt(d)})
+		.style("opacity", 0.8)
+		.attr("transform", "scale(4)");
+
+		setInterval(function(){
+			dataset = Array(10);
+			for(i=0;i<9;i++){
+			dataset = dataset.fill(Math.floor((Math.random()*100+1)), i);	
+			}
+		
+		svg = d3.select("svg").selectAll("rect");
+		svg.data(dataset).update().append("rect")
+		.attr("x", function(d, i){return (i*30)+30})
+		.attr("y", 10)	
+		.style("fill", function(d){if(d>50){return "green"}else{return "red"}})
+		.attr("width", function(d){return +Math.sqrt(d)})
+		.attr("height", function(d){return +Math.sqrt(d)})
+		.style("opacity", 0.8)
+		.attr("transform", "scale(4)");
+		}, 400);
+		
+		
+	</script>
+
+</body>
