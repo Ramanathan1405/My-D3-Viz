@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Global Competitiveness Report</title>
+	<script type="text/javascript" src="https://d3js.org/d3.v5.min.js"></script>
+	<style type="text/css">
+		.axis path,
+		.axis line {
+			fill:none;
+			stroke:black;
+			shape-rendering: crispEdges;
+					}
+		.axis text {
+			font-family: sans-serif;
+			font-size: 12px;
+		}
+		.button-bar {
+			width: 800px;
+			margin-bottom: 20px;
+		}
+		.button {
+			float: left;
+			margin-left: 15px;
+			cursor: pointer;
+		}
+		.play-button {
+			float: left;
+			margin-left: 15px;
+			cursor: pointer;
+		}
+		.selected {
+			font-weight: bold;
+			color: red;
+		}
+	</style>
+</head>
+<body>
+	<h1>Global Competitiveness Index Vs GDP</h1>
+	<div class="button-bar">
+		<div class="play-button" >Play All</div>
+	</div>
+	<hr style="clear: both;">
+	<div class="button-bar">
+		<div class="button selected">2007</div>
+		<div class="button">2008</div><div class="button">2009</div><div class="button">2010</div>
+		<div class="button">2011</div><div class="button">2012</div><div class="button">2013</div><div class="button">2014</div>
+		<div class="button">2015</div><div class="button">2016</div><div class="button">2017</div>
+	</div>
+	<hr style="clear: both;">
+	<script type="text/javascript">
+		var margin = {top:10, right:10, bottom:20, left:40};
+
+		var outer_width = 800;
+		var outer_height = 600;
+		var svg_width = outer_width-margin.left-margin.right;
+		var svg_height = outer_height-margin.top-margin.bottom;
+
+		var display_year = 2007;
+
+		function yearFilter(value){
+			return (value.Year == display_year)
+		}
+
+		var svg = d3.select("body")
+					.append("svg")
+					.attr("width", outer_width)
+					.attr("height", outer_height)
+					//.style("background", "aliceblue")
+					.append("g")
+					.attr("transform", "translate("+ margin.left +", "+ margin.top +" )");
+
+		var yScale = d3.scaleLinear()
+						.range([svg_height, 0]);
+
+		var xScale = d3.scaleLog()
+						.range([0, svg_width]);
+
+		var popScale = d3.scaleLinear()
+						.range([3, 30]);
+
+		var xaxis = d3.axisBottom()
+						.scale(xScale);
+
+		var yaxis = d3.axisLeft()
+						.scale(yScale);
+
+		svg.append("g")
+				.attr("class", "axis")
+				.attr("id", "ya");
+				
+
+		svg.append("g")
+				.attr("class", "axis")
+				.attr("transform", "translate(0, "+ svg_height +")")
+				.attr("id", "xa");
+
+		function forum_color(forum){
+			if (forum == "Europe and North America"){return "red";}
+			else if(forum == "Middle East and North Africa"){return "rgb(255,0,255)"; }
+			else if(forum == "Latin America and the Caribbean"){return "blue"; }
+			else if(forum == "Eurasia"){return "green"; }
+			else if(forum == "South Asia"){return "rgb(255,20,147)"; }
+			else if(forum == "East Asia and Pacific"){return "orange"; }
+			else if(forum == "Sub-Saharan Africa"){return "brown"; }
+
+		}
+
+		function generateVis()
+		{
+			var filtered_dataset = dataset.filter(yearFilter);
+
+			yScale.domain([2, d3.max(dataset, function(d){return +d.Global_Competitiveness_Index; })]);
+
+			xScale.domain([100, d3.max(dataset, function(d){return +d.GDP; })]);
+
+			popScale.domain([d3.min(dataset, function(d){return +d.Population; }), d3.max(dataset, function(d){return +d.Population; })]);
+			
+			d3.select("#xa").call(xaxis);
+
+			d3.select("#ya").call(yaxis);
+
+			circ = 	svg.selectAll("circle")
+				.data(filtered_dataset, function key(d){return d.Country;});
+
+
+				circ
+				.transition()
+				.duration(800)
+				.attr("cx", function(d){return xScale(d.GDP)})
+				.attr("cy", function(d){return yScale(d.Global_Competitiveness_Index)})
+				.attr("r", function(d){return popScale(d.Population)})
+				.style("fill", function(d){return forum_color(d.Forum_classification); })
+				.style("opacity", 0.7);
+
+
+				circ
+				.enter()
+				.append("circle")
+				.attr("cx", function(d){return xScale(+d.GDP); })
+				.attr("cy", function(d){return yScale(+d.Global_Competitiveness_Index); })
+				.attr("r", function(d){return popScale(+d.Population); })
+				.style("fill", function(d){return forum_color(d.Forum_classification); })
+				.style("opacity", 0.7)
+				.on("mouseover", function(d){
+					d3.select(this)
+					.transition()
+					.duration(300)
+					.style("fill", "rgb(47,79,79)");
+
+				})
+				.on("mouseout", function(d){
+					d3.select(this)
+						.transition()
+						.duration(300)
+						.style("fill", function(d){return forum_color(d.Forum_classification); })
+						.style("stroke", "none")
+						.style("stroke-width", 0);
+				})
+				.on("click", function(d){
+					d3.select(this)
+						.style("stroke", "black")
+						.style("stroke-width", 2);
+				})	
+				.append("title")
+				.text(function(d)
+				{
+					return d.Country;
+				});
+			
+			d3.select("#yy").text("Year:" + display_year)
+		}	
+
+		d3.csv("./GCI_CompleteData4.csv")
+			.then(function(data){
+				dataset = data;
+				generateVis();
+			});
+
+		d3.selectAll(".button")
+			.on("click", function(d){
+
+				d3.select(".selected")
+					.classed("selected", false);
+
+				d3.select(this)
+					.classed("selected", true);
+
+				display_year = d3.select(this).text();
+
+				generateVis();
+
+				clearInterval(playInterval);	
+			})
+
+		var playInterval;
+
+		d3.select(".play-button")
+			.on("click", function(){
+				
+				playInterval = setInterval(function(){
+						display_year = display_year+1;
+						if(display_year > 2017)
+						{
+							display_year = 2007;
+						}
+						generateVis();
+
+					}, 2000);
+
+				d3.select(".selected")
+					.classed("selected", false);
+
+				d3.select(this)
+					.classed("selected", true);
+			})
+
+	</script>
+<h2 id = "yy" style="font-family: verdana; color:olive" ></h2>
+</body>
+</html>
